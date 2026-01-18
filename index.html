@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Patient Feedback System</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Medical Background */
+        .medical-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .medical-particle {
+            position: absolute;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            animation: medicalFloat 25s infinite linear;
+        }
+
+        .medical-particle:nth-child(1) { width: 6px; height: 6px; left: 10%; animation-delay: 0s; }
+        .medical-particle:nth-child(2) { width: 10px; height: 10px; left: 20%; animation-delay: -5s; }
+        .medical-particle:nth-child(3) { width: 8px; height: 8px; left: 80%; animation-delay: -10s; }
+        .medical-particle:nth-child(4) { width: 12px; height: 12px; right: 10%; animation-delay: -15s; }
+
+        @keyframes medicalFloat {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        .cross-symbol {
+            position: absolute;
+            color: rgba(0, 255, 127, 0.1);
+            font-size: 20px;
+            animation: crossRotate 20s infinite linear;
+        }
+
+        .cross-symbol:nth-child(5) { top: 20%; left: 15%; animation-delay: 0s; }
+        .cross-symbol:nth-child(6) { top: 60%; right: 20%; animation-delay: -8s; }
+
+        @keyframes crossRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .glass-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: glassEntrance 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes glassEntrance {
+            0% { transform: translateY(100px) scale(0.9); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .hospital-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 70%, #f5576c 100%);
+            color: white;
+            padding: 40px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hospital-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: hospitalShine 4s infinite;
+        }
+
+        @keyframes hospitalShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header-title {
+            font-size: 3.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .hospital-subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .hospital-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 15px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin: 40px 60px;
+            padding: 30px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 25px 15px;
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .metric-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .control-panel {
+            padding: 40px 60px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 25px;
+            margin: 0 60px 40px;
+        }
+
+        .search-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: end;
+        }
+
+        .search-input, .select-input {
+            padding: 18px 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .search-input:focus, .select-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 6em;
+            margin-bottom: 30px;
+            opacity: 0.5;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        .form-modal {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00b894;
+            box-shadow: 0 0 0 4px rgba(0, 184, 148, 0.1);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .star {
+            font-size: 2em;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star.active {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .glass-container { margin: 15px; border-radius: 20px; }
+            .hospital-header, .control-panel { padding-left: 20px; padding-right: 20px; }
+            .stats-metrics { margin: 20px; padding: 20px; grid-template-columns: repeat(2, 1fr); }
+            .search-container { grid-template-columns: 1fr; }
+            .header-title { font-size: 2.2em; }
+        }
+    </style>
+</head>
+body>
+    <div class="medical-bg">
+        <div class="medical-particle"></div>
+        <div class="medical-particle"></div>
+        <div class="medical-particle"></div>
+        <div class="medical-particle"></div>
+        <i class="fas fa-plus cross-symbol"></i>
+        <i class="fas fa-plus cross-symbol"></i>
+    </div>
+    
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function useLocalStorage(key, initialValue) {
+            const [value, setValue] = useState(() => {
+                try {
+                    const item = window.localStorage.getItem(key);
+                    return item ? JSON.parse(item) : initialValue;
+                } catch {
+                    return initialValue;
+                }
+            });
+
+            useEffect(() => {
+                try {
+                    window.localStorage.setItem(key, JSON.stringify(value));
+                } catch { }
+            }, [key, value]);
+
+            return [value, setValue];
+        }
+
+        function App() {
+            const [feedbacks, setFeedbacks] = useLocalStorage('mediCareFeedbacks', []);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [showForm, setShowForm] = useState(false);
+            const [formData, setFormData] = useState({ 
+                name: '', 
+                email: '', 
+                department: '', 
+                rating: 0, 
+                comment: '',
+                date: ''
+            });
+            const [editingId, setEditingId] = useState(null);
+            const [ratingHover, setRatingHover] = useState(0);
+
+            const filteredFeedbacks = feedbacks.filter(f => 
+                f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.comment.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const totalFeedbacks = feedbacks.length;
+            const avgRating = totalFeedbacks > 0 ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / totalFeedbacks).toFixed(1) : 0;
+            const positiveReviews = totalFeedbacks > 0 ? Math.round((feedbacks.filter(f => f.rating >= 4).length / totalFeedbacks) * 100) : 0;
+            const last30Days = feedbacks.filter(f => 
+                new Date().getTime() - new Date(f.date).getTime() <= 30 * 24 * 60 * 60 * 1000
+            ).length;
+
+            const departments = ['Emergency', 'Cardiology', 'Orthopedics', 'Neurology', 'Pediatrics', 'General'];
+
+            const handleRatingClick = (rating) => {
+                setFormData({ ...formData, rating });
+            };
+
+            const addFeedback = (e) => {
+                e.preventDefault();
+                if (formData.name && formData.email && formData.department && formData.rating > 0 && formData.comment.trim()) {
+                    const feedbackData = { 
+                        ...formData, 
+                        date: editingId ? formData.date : new Date().toISOString().split('T')[0]
+                    };
+                    
+                    if (editingId) {
+                        setFeedbacks(feedbacks.map(f => f.id === editingId ? feedbackData : f));
+                    } else {
+                        setFeedbacks([...feedbacks, { id: Date.now(), ...feedbackData }]);
+                    }
+                    
+                    setFormData({ name: '', email: '', department: '', rating: 0, comment: '', date: '' });
+                    setEditingId(null);
+                    setShowForm(false);
+                }
+            };
+
+            if (!showForm) {
+                return (
+                    <div className="glass-container">
+                        <div className="hospital-header">
+                            <h1 className="header-title">
+                                <i className="fas fa-heartbeat"></i> MediCare Patient Feedback
+                            </h1>
+                            <p className="hospital-subtitle">Your voice matters in improving healthcare excellence</p>
+                            <div className="hospital-badge">
+                                <i className="fas fa-certificate"></i> Certified Hospital System
+                            </div>
+                        </div>
+
+                        <div className="stats-metrics">
+                            <div className="metric-card">
+                                <div className="metric-icon"><i className="fas fa-users"></i></div>
+                                <div className="metric-value">{totalFeedbacks}</div>
+                                <div className="metric-label">Total Patients</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-icon"><i className="fas fa-star"></i></div>
+                                <div className="metric-value">{avgRating}</div>
+                                <div className="metric-label">Avg Rating</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-icon"><i className="fas fa-thumbs-up"></i></div>
+                                <div className="metric-value">{positiveReviews}%</div>
+                                <div className="metric-label">Satisfied</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-icon"><i className="fas fa-calendar-week"></i></div>
+                                <div className="metric-value">{last30Days}</div>
+                                <div className="metric-label">Recent</div>
+                            </div>
+                        </div>
+
+                        <div className="control-panel">
+                            <div className="search-container">
+                                <input 
+                                    className="search-input"
+                                    placeholder="🔍 Search patients, departments, feedback..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <select className="select-input">
+                                    <option>All Departments</option>
+                                    {departments.map(dept => (
+                                        <option key={dept}>{dept}</option>
+                                    ))}
+                                </select>
+                                <select className="select-input">
+                                    <option>All Ratings</option>
+                                    <option>5 Stars</option>
+                                    <option>4+ Stars</option>
+                                </select>
+                                <button className="btn-primary" onClick={() => setShowForm(true)}>
+                                    <i className="fas fa-plus"></i> New Feedback
+                                </button>
+                            </div>
+
+                            {filteredFeedbacks.length === 0 ? (
+                                <div className="empty-state">
+                                    <div className="empty-icon">
+                                        <i className="fas fa-clipboard-list"></i>
+                                    </div>
+                                    <h2>No feedback collected yet</h2>
+                                    <p>Start by collecting your first patient satisfaction feedback to improve services</p>
+                                    <button className="btn-primary" style={{padding: '20px 50px', fontSize: '18px'}} 
+                                            onClick={() => setShowForm(true)}>
+                                        <i className="fas fa-plus-circle"></i> Collect First Feedback
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{textAlign: 'center', color: '#6c757d', padding: '40px'}}>
+                                    <h3>📋 Patient feedback list will appear here (CRUD ready)</h3>
+                                    <p>Full table view with edit/delete actions coming soon</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="glass-container">
+                    <div className="hospital-header">
+                        <h1 className="header-title">
+                            <i className="fas fa-edit"></i> New Patient Feedback
+                        </h1>
+                        <p className="hospital-subtitle">Help us serve you better</p>
+                    </div>
+                    
+                    <div className="control-panel">
+                        <form onSubmit={addFeedback} className="form-modal">
+                            <div className="form-group">
+                                <label className="form-label">Patient Name</label>
+                                <input 
+                                    className="form-input"
+                                    placeholder="Enter patient full name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    required
+                                />
+                            </div>
+                            
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
+                                <div className="form-group">
+                                    <label className="form-label">Email</label>
+                                    <input 
+                                        className="form-input"
+                                        type="email"
+                                        placeholder="patient@example.com"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Department</label>
+                                    <select 
+                                        className="form-input"
+                                        value={formData.department}
+                                        onChange={(e) => setFormData({...formData, department: e.target.value})}
+                                        required
+                                    >
+                                        <option value="">Select Department</option>
+                                        {departments.map(dept => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Rating</label>
+                                <div className="rating-stars">
+                                    {[5,4,3,2,1].map(star => (
+                                        <i 
+                                            key={star}
+                                            className={`fas fa-star star ${formData.rating >= star || ratingHover >= star ? 'active' : ''}`}
+                                            onClick={() => handleRatingClick(star)}
+                                            onMouseEnter={() => setRatingHover(star)}
+                                            onMouseLeave={() => setRatingHover(0)}
+                                            style={{cursor: 'pointer'}}
+                                        ></i>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Feedback</label>
+                                <textarea 
+                                    className="form-textarea"
+                                    rows="6"
+                                    placeholder="Tell us about your experience..."
+                                    value={formData.comment}
+                                    onChange={(e) => setFormData({...formData, comment: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{display: 'flex', gap: '20px'}}>
+                                <button type="submit" className="btn-primary" style={{flex: 1}}>
+                                    <i className="fas fa-paper-plane"></i> {editingId ? 'Update Feedback' : 'Submit Feedback'}
+                                </button>
+                                <button type="button" className="btn-secondary" style={{flex: 1}}
+                                        onClick={() => {
+                                            setShowForm(false);
+                                            setFormData({ name: '', email: '', department: '', rating: 0, comment: '', date: '' });
+                                            setEditingId(null);
+                                            setRatingHover(0);
+                                        }}>
+                                    <i className="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
